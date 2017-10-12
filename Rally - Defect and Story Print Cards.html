@@ -17,7 +17,6 @@
 		var CARDTYPES = [];
 		CARDTYPES[0] = "HierarchicalRequirement";
 		CARDTYPES[1] = "defect";
-		CARDTYPES[2] = "testset";
         function PrintTaskCards(rallyDataSource) {
             var iterationDropdown, storyDropdown, cbIncludeDefects;
 
@@ -30,14 +29,6 @@
                 else if (!cbIncludeDefects.getChecked() && index > -1) {
                         CARDTYPES.splice(index, 1);
                 }
-
-                /*index = CARDTYPES.indexOf("testset");
-                if (testsetCheckbox.getChecked() && index == -1) {
-                    CARDTYPES.push("testset");
-                }
-                else if (!testsetCheckbox.getChecked() && index > -1) {
-                    CARDTYPES.splice(index, 1);
-                }*/
 
                 //If viewing iteration items run query with 'I' filter.
                 if (iterationDropdown.getDisplayedValue() !== "") {
@@ -80,7 +71,7 @@
 							ownerText = makeOwnerText(loginName, userTable);
 						}
 			
-						if (CARD_TYPE === 'HierarchicalRequirement' || CARD_TYPE === "defect" || CARD_TYPE === "testset") {
+						if (CARD_TYPE === 'HierarchicalRequirement' || CARD_TYPE === "defect") {
 							storyId = data[i].FormattedID;
 							taskId = "";
 						} else {
@@ -94,8 +85,8 @@
 							estimate = data[i].Estimate;
 						} else {
 							estimate = "0";
-						}
-			
+						};
+
 						description = data[i].Description;
 						
 						if(data[i].Release){
@@ -131,8 +122,9 @@
             }
         
             function createMarkup(cardNum, totalCards, name, ownerText, ownerClass, description, storyId, taskId, estimate, release) {
+                console.log('totalCards', totalCards);
                 var theMarkup, id;
-                if (CARD_TYPE === 'HierarchicalRequirement' || CARD_TYPE === "defect" || CARD_TYPE === "testset") {
+                if (CARD_TYPE === 'HierarchicalRequirement' || CARD_TYPE === "defect") {
                     id = storyId;
                 } else {
                     id = taskId + ':' + storyId;
@@ -141,28 +133,24 @@
 								
                 theMarkup =
                         '<div class="artifact">' +
-								'<div class="header" id="' + CARD_TYPE + '">' +
-                                '<span class="storyID">' + id + '</span>' +
-                                '<span class="owner ' + ownerClass + '">' + '</span>' +
-                                '<span class="ownerText">' + ownerText + '</span>' +
-                                '</div>' +
-                                '<div class="content">' +
-                                '<div class="card-title">' + name + '</div>' +
+                            '<div class="header" id="' + CARD_TYPE + '">' +
+                                '<span class="storyID">' + name + '</span>' +
+                            '</div>' +
+                            '<div class="content">' +
                                 '<div class="description">' + description + '</div>' +
-                                '</div>' +
-								'<div class="footer">' +
-                                '<span class="release">' + release + '</span>' +
+                            '</div>' +
+                            '<div class="footer">' +
+								'<span class="userStory">' + id + '</span>' +
 								'<span class="estimate">' + estimate + ' Points</span>' +
-								'</div>' +
-                                '</div>';
+                            '</div>' +
+                        '</div>';
         
                 // Page break every %x cards
-				if ((cardNum + 1) % 4 === 0) {
-                    theMarkup = theMarkup + '<div class=pb></div>';
-                } else if (cardNum === totalCards - 1) {
-                    theMarkup = theMarkup + '<div class=cb>&nbsp;</div>';
-                }
-        
+//				if ((cardNum + 1) % 3 === 0) {
+//                    theMarkup = theMarkup + '<div class=pb></div>';
+//                }
+
+
                 return theMarkup;
             }
         
@@ -276,7 +264,6 @@
         
                 printWindow.print();
                 return false;
-            }
         
             this.display = function () {
                 var itertationConf = {
@@ -293,7 +280,7 @@
                     attribute: "FormattedID",
                     label: "Story",
                     labelPosition: "after",
-                    rememberSelection: "false",
+                    rememberSelection: "false"
                 };
                 storyDropdown = new rally.sdk.ui.ObjectDropdown(storyConfig, rallyDataSource);
                 storyDropdown.addEventListener("onDataRetrieved", onDataRetrieved);
@@ -345,7 +332,8 @@
         html {
             background-color: #fff;
             color: #000;
-            font: 14pt / 1.26 Arial, Helvetica, sans-serif;
+            font: 14pt / 1.26 Helvetica Nueue, sans-serif;
+            
             margin: 0;
             padding: 0;
         }
@@ -364,93 +352,82 @@
             background-color: #fff;
             border: 2px solid #000;
             float: left;
-            height: 3.2in;
-            margin: 0.1in 0.1in 0.1in 0.1in;
+            height: 312px;
+            margin: 5px;
             position: relative;
             overflow: hidden;
-            width: 4.3in;
+            width: 650px;
+        }
+
+        .artifact:nth-child(3n) {
+            page-break-after: always;
+            clear: both;
         }
 
         .header {
             border: 1px;
             border-bottom-style: solid;
             font-size: 18px;
-            height: 15%;
+            font-weight: bold;
+            height: auto;
             vertical-align: middle;
-            width: 4.3in;
+            overflow: visible;
+            width: 650px;
+            padding: 10px;
 		}
 		
 		#HierarchicalRequirement {
-			background-color:#8B4789;
-			color: white;
-            -webkit-print-color-adjust:exact;
+            color: #3E87E8;
+            -webkit-print-color-adjust: exact;
+            border-bottom: 5px solid #3E87E8;
 		}
 		
 		#defect {
-			background-color:#CD3333;
-			color: white;
+			color: #E53838;
             -webkit-print-color-adjust:exact;
-		}
-		#testset {
-			background-color:#383951;
-			color: white;
-            -webkit-print-color-adjust:exact;
+            border-bottom: 5px solid #E53838;
 		}
 
         .card-title {
-            font: bold 16px Genova, sans-serif;
-            padding-top: 0.5em;
+            font: bold 18px Helvetica Nueue, sans-serif;
+            padding: .5em;
             text-align: left;
         }
 
         .description {
             float: left;
-            font: 6pt Georgia, sans-serif;
-            margin: 0.25em auto 0 auto;
+            font: 8pt Helvetica Nueue, sans-serif;
+            margin: 1em auto;
             padding-left: 1.0em;
             padding-right: 1.0em;
             overflow-y: hidden;
-            width: 100%;
             word-wrap: break-word;
         }
 
-        .owner {
-            float: right;
-            height: 20%;
-			-webkit-print-color-adjust:exact;
-        }
-
-        .ownerText {
-            float: right;
-            font: 10pt / 1.26 Arial, Helvetica, sans-serif;
-            margin-right: 0.3em;
-            margin-top: 0.3em;
-			-webkit-print-color-adjust:exact;
-        }
-		
-		.ownerImage {
-            float: right;
-            vertical-align:top;
-			-webkit-print-color-adjust:exact;
-        }
-
         .storyID {
-            float: left;
-            font: 14pt / 1.26 Arial, Helvetica, sans-serif;
-            margin-left: 0.25em;
-            margin-top: 0.3em;
+            font: 14pt / 1.26 Helvetica Nueue, sans-serif;
+            display: block;
+            text-align: center;
+            font-weight: bold;
 			-webkit-print-color-adjust:exact;
+        }
+
+        .userStory {
+            font: bold 16px Helvetica Nueue, sans-serif;
+            bottom: 1.2em;
+            position: absolute;
+            left: 0.5em;
         }
 
         .estimate {
-            font: bold 16px Genova, sans-serif;
-			bottom: 0.5em;
+            font: bold 16px Helvetica Nueue, sans-serif;
+			bottom: 1.2em;
             position: absolute;
             right: 0.5em;
         }
 		
 		.release {
-            font: bold 16px Genova, sans-serif;
+            font: bold 16px Helvetica Nueue, sans-serif;
 			bottom: 0.5em;
             position: absolute;
             left: 0.5em;
@@ -463,13 +440,12 @@
         }
 		
 		.footer {
-            border: 1px;
-            border-top-style: solid;
-            display: table-cell;
+            border-top: 1px solid;
             font-size: 18px;
-            height: 100%;
+            height: 50px;
             vertical-align: bottom;
-            width: 4.3in;
+            width: 650px;
+            position: relative;
 		}
 
     </style>
